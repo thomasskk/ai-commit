@@ -75,6 +75,8 @@ func showSpinner(ctx context.Context, message string) {
 const geminiModel = "gemini-2.5-flash-preview-05-20"
 
 func main() {
+	log.SetFlags(0)
+
 	geminiApiKey := os.Getenv("GEMINI_API_KEY")
 
 	if geminiApiKey == "" {
