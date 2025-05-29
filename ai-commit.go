@@ -1,15 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
-	"google.golang.org/genai"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
 	"time"
+
+	"google.golang.org/genai"
 )
 
 const promptTemplate = `You are an AI assistant specialized in generating concise, single-line Conventional Commit messages from git diffs.
@@ -145,5 +147,24 @@ Please take this hint into account when generating the commit message.
 		log.Fatalf("Error generating commit message : %v", err)
 	}
 
-	fmt.Println(result.Text())
+	commitMessage := result.Text()
+
+	fmt.Println(commitMessage)
+
+	fmt.Print("\nDo you want to commit with this message now? (y/N): ")
+
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(strings.ToLower(input))
+
+	if input == "" || input == "y" || input == "yes" {
+		fmt.Println("Attempting to commit...")
+		output, err := exec.Command("git", "commit", "-m", commitMessage).Output()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Print(string(output))
+	} else {
+		fmt.Println("Commit aborted by user")
+	}
 }
